@@ -10,8 +10,9 @@ const { FileSystemWallet, Gateway } = require('fabric-network');
 const path = require('path');
 const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org1.json');
 
+console.log("Started API Server");
 //GET : All cars
-app.get('/api/queryallcars', async function (req, res) {
+app.get('/api/getReading', async function (req, res) {
     try {
 // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -34,7 +35,7 @@ app.get('/api/queryallcars', async function (req, res) {
 // Evaluate the specified transaction.
         // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
         // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
-        const result = await contract.evaluateTransaction('queryAllCars');
+        const result = await contract.evaluateTransaction('getReading');
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
 } catch (error) {
@@ -46,7 +47,7 @@ app.get('/api/queryallcars', async function (req, res) {
 
 
 //GET : Car from given index 
-app.get('/api/query/:car_index', async function (req, res) {
+app.get('/api/get/:sensorid', async function (req, res) {
     try {
 // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -69,7 +70,7 @@ app.get('/api/query/:car_index', async function (req, res) {
 // Evaluate the specified transaction.
         // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
         // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
-        const result = await contract.evaluateTransaction('queryCar', req.params.car_index);
+        const result = await contract.evaluateTransaction('getReadingForID', req.params.sensorid);
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         res.status(200).json({response: result.toString()});
 } catch (error) {
@@ -81,7 +82,7 @@ app.get('/api/query/:car_index', async function (req, res) {
 
 
 //POST : Car to be added
-app.post('/api/addcar/', async function (req, res) {
+app.post('/api/addReading/', async function (req, res) {
     try {
 // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -104,7 +105,8 @@ app.post('/api/addcar/', async function (req, res) {
 // Submit the specified transaction.
         // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-        await contract.submitTransaction('createCar', req.body.carid, req.body.make, req.body.model, req.body.colour, req.body.owner);
+     //   await contract.submitTransaction('createCar', req.body.carid, req.body.make, req.body.model, req.body.colour, req.body.owner);
+        await contract.submitTransaction('addReading', req.body.sensorid, req.body.model, req.body.timestamp, req.body.value);
         console.log('Transaction has been submitted');
         res.send('Transaction has been submitted');
 // Disconnect from the gateway.
@@ -115,9 +117,9 @@ app.post('/api/addcar/', async function (req, res) {
     }
 })
 
-//PUT : Car detail to be edited
+//POST : Car detail to be edited
 
-app.put('/api/changeowner/:car_index', async function (req, res) {
+app.post('/api/updateReading/', async function (req, res) {
     try {
 // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -140,7 +142,9 @@ app.put('/api/changeowner/:car_index', async function (req, res) {
 // Submit the specified transaction.
         // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-        await contract.submitTransaction('changeCarOwner', req.params.car_index, req.body.owner);
+        //HERE TOOOOO
+       
+        await contract.submitTransaction('updateReading', req.body.sensorid, req.body.value);
         console.log('Transaction has been submitted');
         res.send('Transaction has been submitted');
 // Disconnect from the gateway.
