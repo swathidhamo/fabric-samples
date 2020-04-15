@@ -42,11 +42,14 @@ import (
 type SmartContract struct {
 }
 
-// Define the Sensor structure, with 3 properties.  Structure tags are used by encoding/json library 
-type Sensor struct {
-	Model  string `json:"model"`
+// Define the Asset structure, with 3 properties.  Structure tags are used by encoding/json library 
+type Asset struct {
+	Latitude string `json:"lat"`
+	Longitude string `json:"lng"`
+	pH  string `json:"ph"`
+	Temperature  string `json:"temp"`
 	TimeStamp string `json:"timestamp"`
-	Value string `json:"value"`
+	
 }
 
 /*
@@ -87,29 +90,24 @@ func (s *SmartContract) getReadingForID(APIstub shim.ChaincodeStubInterface, arg
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	sensorAsBytes, _ := APIstub.GetState(args[0])
-	return shim.Success(sensorAsBytes)
+	assetAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(assetAsBytes)
 }
 //here
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
-	sensors := []Sensor{
-		Sensor{Model: "pH", TimeStamp:"12/02/2020 15:05", Value: "23.2"},
-		Sensor{Model: "pH", TimeStamp:"15/02/2020 15:05", Value: "130.2"},
-		Sensor{Model: "pH", TimeStamp:"14/02/2020 15:05", Value: "34.2"},
-		Sensor{Model: "pH", TimeStamp:"13/02/2020 15:05", Value: "1.2"},
-		Sensor{Model: "pH", TimeStamp:"16/02/2020 15:05", Value: "0.2"},
-		Sensor{Model: "pH", TimeStamp:"17/02/2020 15:05", Value: "67.2"},
-		Sensor{Model: "pH", TimeStamp:"18/02/2020 15:05", Value: "134.2"},
-		Sensor{Model: "pH", TimeStamp:"20/02/2109 15:05", Value: "72.2"},
-		Sensor{Model: "pH", TimeStamp:"21/02/2020 15:05", Value: "90.2"},
+	assets := []Asset{
+		Asset{Latitude: "4.2", Longitude: "23.1", pH: "0.9", Temperature: "39.1", TimeStamp: "15/02/2020 15:05"},
+		Asset{Latitude: "0.2", Longitude: "3.1", pH: "14", Temperature: "34.1", TimeStamp: "15/02/2020 15:05"},
+		Asset{Latitude: "1.2", Longitude: "1.1", pH: "10", Temperature: "32.1", TimeStamp: "15/02/2020 15:05"},
+		Asset{Latitude: "3.2", Longitude: "19.1", pH: "9", Temperature: "29.1", TimeStamp: "15/02/2020 15:05"},
 	}
 
 	i := 0
-	for i < len(sensors) {
+	for i < len(assets) {
 		fmt.Println("i is ", i)
-		sensorAsBytes, _ := json.Marshal(sensors[i])
-		APIstub.PutState("NODE"+strconv.Itoa(i), sensorAsBytes)
-		fmt.Println("Added", sensors[i])
+		assetAsBytes, _ := json.Marshal(assets[i])
+		APIstub.PutState("ASSET_"+strconv.Itoa(i), assetAsBytes)
+		fmt.Println("Added", assets[i])
 		i = i + 1
 	}
 
@@ -118,22 +116,22 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 
 func (s *SmartContract) addReading(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 //here
-	if len(args) != 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 4")
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
-	var sensor = Sensor{TimeStamp: args[1], Model: args[2], Value: args[3]}
+	var asset = Asset{Latitude: args[1], Longitude: args[2], pH: args[3], Temperature: args[4], TimeStamp: args[5]}
 
-	sensorAsBytes, _ := json.Marshal(sensor)
-	APIstub.PutState(args[0], sensorAsBytes)
+	assetAsBytes, _ := json.Marshal(asset)
+	APIstub.PutState(args[0], assetAsBytes)
 
 	return shim.Success(nil)
 }
 
 func (s *SmartContract) getReading(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	startKey := "NODE0"
-	endKey := "NODE999"
+	startKey := "ASSET_0"
+	endKey := "ASSET_999"
 
 	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
 	if err != nil {
@@ -168,26 +166,32 @@ func (s *SmartContract) getReading(APIstub shim.ChaincodeStubInterface) sc.Respo
 	}
 	buffer.WriteString("]")
 
-	fmt.Printf("- queryAllCars:\n%s\n", buffer.String())
+	fmt.Printf("- queryAllReadings:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
 }
 
 func (s *SmartContract) updateReading(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
 
-	sensorAsBytes, _ := APIstub.GetState(args[0])
-	sensor := Sensor{}
+	assetAsBytes, _ := APIstub.GetState(args[0])
+	asset := Asset{}
 
-	json.Unmarshal(sensorAsBytes, &sensor)
-	sensor.Value = args[1]
+	json.Unmarshal(assetAsBytes, &asset)
 
-	sensorAsBytes, _ = json.Marshal(sensor)
-	APIstub.PutState(args[0], sensorAsBytes)
+	asset.Latitude = args[1]
+	asset.Longitude = args[2]
+    asset.pH = args[3]
+    asset.Temperature = args[4]
+    asset.TimeStamp = args[5]
+
+
+	assetAsBytes, _ = json.Marshal(asset)
+	APIstub.PutState(args[0], assetAsBytes)
 
 	return shim.Success(nil)
 }
