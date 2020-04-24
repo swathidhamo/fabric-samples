@@ -1,0 +1,27 @@
+html
+    
+    head   
+        title Dashboard
+    
+    script.
+        function getDataForAsset(assetId){
+            //  Redirect to asset page [Create GET request]
+            targetUrl = "http://localhost:8080/trackAsset/" + assetId;
+            window.location.href = targetUrl;
+        }
+
+    body
+        h1(style="margin:auto;width:max-content;text-align:center;margin-top:3vh;") Available Assets 
+
+        //  Assets container
+        div(style="overflow:auto; height:80vh; width:50vw; margin:auto; margin-top:2em; border:1px solid; border-radius: 10px;")
+            - var assetId = 1;
+
+            //  Inject asset divs (assetCount passed in from renderFunction)
+            while assetId <= assetCount
+
+                //  Asset div
+                div(style = "padding: 1em; margin: auto; margin-top: 1em; border:1px solid; border-radius: 10px; text-align:center; width: max-content; cursor:pointer;", onclick='getDataForAsset('+assetId+')')
+                    span(style="margin:2em;") Asset - #{assetId} 
+
+                - assetId++;

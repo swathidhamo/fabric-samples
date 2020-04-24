@@ -1,0 +1,32 @@
+html
+	script.
+
+		
+	body
+		h1(style="margin:auto;width:max-content;text-align:center;margin-top:3vh;") Tracking Asset - #{assetid}
+		div(style="position: absolute; margin:1em; left: 1em; width:25vw; height:85vh; border:1px solid; border-radius:10px;")
+			h3(style="margin: 1em; text-align:center; width:90%; border-bottom:1px solid;") History
+	
+			//  History Container
+			div#assetHistoryContainer(style="overflow:auto; margin:auto; width:90%; height:85%;")
+				
+				//  assetHistory is a 2D array
+				each element in assetHistory.array
+					//  History div
+					div(style="margin-top: 1em; border: 1px solid; border-radius:10px;")
+						table(style="margin:auto; width:95%;")
+							tr
+								td Lat
+								td(class="lat",style="text-align:right;") #{element.lat}
+							tr
+								td Long
+								td(class="long",style="text-align:right;") #{element.lng}
+							tr
+								td pH
+								td(style="text-align:right;") #{element.pH}
+							tr
+								td Temp
+								td(style="text-align:right;") #{element.temp}
+							tr
+								td Time
+								td(style="text-align:right;") #{element.timestamp}
